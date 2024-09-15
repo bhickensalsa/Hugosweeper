@@ -10,10 +10,12 @@ public class Hugosweeper {
     JPanel textPanel = new JPanel();
     JPanel boardPanel = new JPanel();
     int tileSize = 80;
-    int numRows = 6;
-    int numCols = 6;
+    int numRows;
+    int numCols;
     int boardWidth = numCols * tileSize;
     int boardHeight = numRows * tileSize;
+    int hugoCount;
+    private int difficulty;
 
     private class HugoTile extends JButton {
         int r;
@@ -23,8 +25,8 @@ public class Hugosweeper {
             this.c = c;
         }
     }
+    
 
-    int hugoCount = 8;
     HugoTile[][] board = new HugoTile[numRows][numCols];
     ArrayList<HugoTile> hugoList;
     Random random = new Random();
@@ -32,31 +34,51 @@ public class Hugosweeper {
     int tilesClicked = 0;
     boolean gameOver = false;
 
-    Hugosweeper() {
-        frame.setVisible(true);
+    public Hugosweeper(int difficulty) {
+        // Set difficulty
+        this.difficulty = difficulty;
+    
+        // Set numRows and numCols based on the difficulty
+        numRows = difficulty; // Example: difficulty represents the number of rows
+        numCols = difficulty; // Example: difficulty represents the number of columns
+    
+        // Initialize board dimensions
+        boardWidth = numCols * tileSize;
+        boardHeight = numRows * tileSize;
+    
+        // Set hugoCount based on difficulty
+        hugoCount = difficulty;
+    
+        // Initialize JFrame
         frame.setSize(boardWidth, boardHeight);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
-
+    
+        // Initialize textLabel
         textLabel.setFont(new Font("Arial", Font.BOLD, 25));
         textLabel.setHorizontalAlignment(JLabel.CENTER);
-        textLabel.setText("Hugosweeper with " + Integer.toString(hugoCount) + " Hugos");
+        textLabel.setText("Hugosweeper with " + hugoCount + " Hugos");
         textLabel.setOpaque(true);
-        
+    
+        // Add textLabel to textPanel
         textPanel.setLayout(new BorderLayout());
         textPanel.add(textLabel);
         frame.add(textPanel, BorderLayout.NORTH);
-
+    
+        // Initialize boardPanel
         boardPanel.setLayout(new GridLayout(numRows, numCols));
         frame.add(boardPanel);
-
+    
+        // Initialize the board and hugoList after numRows and numCols are set
+        board = new HugoTile[numRows][numCols];
+        hugoList = new ArrayList<HugoTile>();
+        
         for (int r = 0; r < numRows; r++) {
             for (int c = 0; c < numCols; c++) {
                 HugoTile tile = new HugoTile(r, c);
                 board[r][c] = tile;
-    
                 tile.setFocusable(false);
                 tile.setMargin(new Insets(0, 0, 0, 0));
                 tile.setFont(new Font("Arial Unicode MS", Font.PLAIN, 30));
@@ -66,34 +88,35 @@ public class Hugosweeper {
                         if (gameOver) {
                             return;
                         }
-                        HugoTile tile = (HugoTile)e.getSource();
+                        HugoTile tile = (HugoTile) e.getSource();
                         if (e.getButton() == MouseEvent.BUTTON1) {
-                            if (tile.getText() == "") {
+                            if (tile.getText().isEmpty()) {
                                 if (hugoList.contains(tile)) {
                                     revealHugos();
-                                }
-                                else {
+                                } else {
                                     checkHugo(tile.r, tile.c);
                                 }
                             }
-                        }
-                        else if (e.getButton() == MouseEvent.BUTTON3) {
-                            if (tile.getText() == "" && tile.isEnabled()) {
+                        } else if (e.getButton() == MouseEvent.BUTTON3) {
+                            if (tile.getText().isEmpty() && tile.isEnabled()) {
                                 tile.setText("bruh");
-                            }
-                            else if (tile.getText() == "bruh") {
+                            } else if (tile.getText().equals("bruh")) {
                                 tile.setText("");
                             }
                         }
                     }
                 });
-                //tile.setText("cum");
                 boardPanel.add(tile);
             }
         }
-        frame.setVisible(true);
+        
+        // Set Hugos
         setHugos();
+        
+        // Make frame visible
+        frame.setVisible(true);
     }
+    
 
     void setHugos() {
         hugoList = new ArrayList<HugoTile>();
